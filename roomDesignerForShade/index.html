@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Designer by Kiki</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1e1e1e;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: #eaeaea;
+        }
+
+        #landingPage {
+            text-align: center;
+            background-color: #2b2b2b;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #landingPage img {
+            width: 200px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        /* Glitzer-Effekt für den Header-Text */
+        @keyframes glitter {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #landingPage h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ffdd57, #4080ff, #ff57b9, #57ff91, #ffdd57);
+            background-size: 400%;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: glitter 4s linear infinite;
+            text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8);
+        }
+
+        #landingPage p {
+            font-size: 18px;
+            color: #c0c0c0;
+            margin-bottom: 30px;
+        }
+
+        #addRoomButton {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #4080ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #addRoomButton:hover {
+            background-color: #3060dd;
+        }
+
+        #roomModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalContent {
+            background-color: #2b2b2b;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+            color: #eaeaea;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #4b4b4b;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #333;
+            color: #eaeaea;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ffffff;
+        }
+
+        #createRoom {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4080ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #createRoom:hover {
+            background-color: #3060dd;
+        }
+    </style>
+</head>
+<body>
+
+<div id="landingPage">
+    <img src="images/LogoNeu.png" alt="Room Designer Logo" style="width:400px; height:200px;">
+    <h1>Shade Designer by Kiki</h1>
+    <p>Erstelle und designe deine eigenen Räume ganz einfach und schnell <br/> so, dass sogar Memo es schafft</p> 
+    <button id="addRoomButton">+ Raum hinzufügen</button>
+</div>
+
+<!-- Modal für Raum-Einstellungen -->
+<div id="roomModal">
+    <div id="modalContent">
+        <span class="close">&times;</span>
+        <h3>Raumgröße festlegen</h3>
+        <div class="input-group">
+            <label for="canvasWidth">Breite (px):</label>
+            <input type="number" id="canvasWidth" value="800">
+        </div>
+        <div class="input-group">
+            <label for="canvasHeight">Höhe (px):</label>
+            <input type="number" id="canvasHeight" value="600">
+        </div>
+        <button id="createRoom">Raum erstellen</button>
+    </div>
+</div>
+
+<script>
+    const addRoomButton = document.getElementById('addRoomButton');
+    const roomModal = document.getElementById('roomModal');
+    const createRoomButton = document.getElementById('createRoom');
+    const canvasWidthInput = document.getElementById('canvasWidth');
+    const canvasHeightInput = document.getElementById('canvasHeight');
+    const closeModal = document.querySelector('.close');
+
+    // Button zum Öffnen des Modals
+    addRoomButton.addEventListener('click', () => {
+        roomModal.style.display = 'flex';
+    });
+
+    // Schließen des Modals
+    closeModal.addEventListener('click', () => {
+        roomModal.style.display = 'none';
+    });
+
+    // Raum erstellen und zur nächsten Seite navigieren
+    createRoomButton.addEventListener('click', () => {
+        const canvasWidth = canvasWidthInput.value;
+        const canvasHeight = canvasHeightInput.value;
+
+        // Speichern der Canvas-Größe im lokalen Speicher
+        localStorage.setItem('canvasWidth', canvasWidth);
+        localStorage.setItem('canvasHeight', canvasHeight);
+
+        // Weiterleitung zur Raum-Erstellungsseite
+        window.location.href = 'room.html';
+    });
+
+    // Modal schließen, wenn außerhalb geklickt wird
+    window.addEventListener('click', (e) => {
+        if (e.target === roomModal) {
+            roomModal.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raum Erstellen Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            background-color: #1e1e1e; /* Dunkler Hintergrund */
+            justify-content: center;
+            align-items: center;
+            color: #eaeaea; /* Helle Schriftfarbe */
+        }
+
+        #canvasContainer {
+            width: calc(100% - 400px);
+            height: calc(100vh - 400px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #2b2b2b; /* Dunklerer Hintergrund für den Canvas-Container */
+            position: relative;
+            border-radius: 10px;
+            padding: 20px; /* Abstand um den Canvas herum */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6); /* Schatteneffekt */
+        }
+
+        #roomCanvas {
+            border: 5px solid #4080ff; /* Helle Umrandung */
+            background-color: white; /* Canvas bleibt weiß */
+        }
+
+        #assetsContainer {
+            width: 30%;
+            padding: 20px;
+            background-color: #2b2b2b; /* Dunkler Hintergrund */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .asset {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            cursor: move;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #333; /* Dunkler Hintergrund der Assets */
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .asset img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+            color: #eaeaea;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 80px;
+            background-color: #444;
+            color: #eaeaea;
+            border: 1px solid #666;
+            border-radius: 3px;
+            padding: 5px;
+        }
+
+        #generateScript {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4080ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #generateScript:hover {
+            background-color: #3060dd;
+        }
+
+        #scriptOutput {
+            margin-top: 20px;
+            background-color: #333;
+            padding: 10px;
+            border: 1px solid #666;
+            width: 100%;
+            white-space: pre-wrap;
+            color: #eaeaea;
+            border-radius: 5px;
+        }
+
+        /* X-Button für Assets */
+        .delete-btn {
+            position: absolute;
+            background-color: red;
+            color: white;
+            width: 20px;
+            height: 20px;
+            font-size: 14px;
+            text-align: center;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Dunklerer Overlay-Hintergrund */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #2b2b2b;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            color: #eaeaea;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #4080ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #3060dd;
+        }
+    </style>
+</head>
+<body>
+
+<div id="canvasContainer">
+    <canvas id="roomCanvas"></canvas>
+    <div id="deleteBtn" class="delete-btn">X</div>
+</div>
+
+<div id="assetsContainer">
+    <h3>Assets</h3>
+    <div class="asset" draggable="true" data-id="1" data-default-width="150" data-default-height="75">
+        <img src="images/desk1.png" alt="Tisch">
+        <p>Tisch</p>
+    </div>
+    <div class="asset" draggable="true" data-id="2" data-default-width="25" data-default-height="25">
+        <img src="images/Chair.png" alt="Stuhl">
+        <p>Stuhl</p>
+    </div>
+    <div class="asset" draggable="true" data-id="9" data-default-width="300" data-default-height="150">
+        <img src="images/aktenschrankoutline.png" alt="Schrank">
+        <p>Schrank</p>
+    </div>
+    <div class="asset" draggable="true" data-id="3" data-default-width="25" data-default-height="25">
+        <img src="images/plant.png" alt="Pflanze">
+        <p>Pflanze</p>
+    </div>
+    <div class="asset" draggable="true" data-id="4" data-default-width="50" data-default-height="10">
+        <img src="images/door.png" alt="Tür">
+        <p>Tür</p>
+    </div>
+    <div class="asset" draggable="true" data-id="5" data-default-width="50" data-default-height="10">
+        <img src="images/Fenster.png" alt="Fenster">
+        <p>Fenster</p>
+    </div>
+
+    <div class="input-group">
+        <label for="widthInput">Breite:</label>
+        <input type="number" id="widthInput" value="">
+    </div>
+    <div class="input-group">
+        <label for="heightInput">Höhe:</label>
+        <input type="number" id="heightInput" value="">
+    </div>
+
+    <button id="generateScript">Skript erstellen</button>
+    <div id="scriptOutput"></div>
+</div>
+
+<!-- Modal für Löschbestätigung -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <p>Wirklich löschen?</p>
+        <button id="confirmDelete">Ja</button>
+        <button id="cancelDelete">Nein</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('roomCanvas');
+    const ctx = canvas.getContext('2d');
+    const deleteBtn = document.getElementById('deleteBtn');
+    let draggedAssetImage = null;
+    let draggedAssetId = null;
+    let defaultWidth = 80;
+    let defaultHeight = 80;
+    let placedAssets = [];
+    let selectedAsset = null;
+    let isDragging = false;
+    let assetToDelete = null;
+    let isMoving = false;
+
+    const canvasWidth = 1600;
+    const canvasHeight = 1200;
+
+    const deleteModal = document.getElementById('deleteModal');
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    const cancelDeleteBtn = document.getElementById('cancelDelete');
+
+    function resizeCanvas() {
+        const container = document.getElementById('canvasContainer');
+        const availableWidth = container.clientWidth;
+        const availableHeight = container.clientHeight;
+
+        const widthRatio = availableWidth / canvasWidth;
+        const heightRatio = availableHeight / canvasHeight;
+        const scale = Math.min(widthRatio, heightRatio);
+
+        canvas.width = canvasWidth * scale;
+        canvas.height = canvasHeight * scale;
+
+        redrawCanvas();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const assets = document.querySelectorAll('.asset');
+    assets.forEach(asset => {
+        asset.addEventListener('dragstart', (e) => {
+            const imgElement = asset.querySelector('img');
+            draggedAssetId = asset.getAttribute('data-id');
+            defaultWidth = parseInt(asset.getAttribute('data-default-width'));
+            defaultHeight = parseInt(asset.getAttribute('data-default-height'));
+
+            if (imgElement) {
+                draggedAssetImage = imgElement.src;
+            } else {
+                console.error('Bildquelle konnte nicht gefunden werden.');
+            }
+        });
+    });
+
+    canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const x = e.offsetX;
+        const y = e.offsetY;
+
+        let width = parseInt(document.getElementById('widthInput').value, 10) || defaultWidth;
+        let height = parseInt(document.getElementById('heightInput').value, 10) || defaultHeight;
+
+        if (draggedAssetImage) {
+            placeAssetOnCanvas(x, y, draggedAssetImage, width, height, draggedAssetId);
+        }
+    });
+
+    function placeAssetOnCanvas(x, y, imageSrc, width, height, id) {
+        const asset = {
+            x: x - width / 2,
+            y: y - height / 2,
+            width: width,
+            height: height,
+            image: new Image(),
+            id: id
+        };
+
+        asset.image.src = imageSrc;
+        asset.image.onload = () => {
+            ctx.drawImage(asset.image, asset.x, asset.y, asset.width, asset.height);
+        };
+
+        placedAssets.push(asset);
+    }
+
+    function deleteAsset(asset) {
+        const index = placedAssets.indexOf(asset);
+        if (index > -1) {
+            placedAssets.splice(index, 1);
+            redrawCanvas();
+        }
+    }
+
+    function selectAsset(x, y) {
+        for (let i = placedAssets.length - 1; i >= 0; i--) {
+            const asset = placedAssets[i];
+            if (x > asset.x && x < asset.x + asset.width && y > asset.y && y < asset.y + asset.height) {
+                selectedAsset = asset;
+                isDragging = true;
+                isMoving = true;
+                showDeleteButton(asset);
+                return;
+            }
+        }
+        hideDeleteButton();
+    }
+
+    function showDeleteButton(asset) {
+        deleteBtn.style.display = 'block';
+        deleteBtn.style.top = `${canvas.offsetTop + asset.y}px`;
+        deleteBtn.style.left = `${canvas.offsetLeft + asset.x + asset.width - 20}px`;
+
+        deleteBtn.onclick = () => {
+            assetToDelete = asset;
+            deleteModal.style.display = 'flex';
+        };
+    }
+
+    function hideDeleteButton() {
+        deleteBtn.style.display = 'none';
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        const x = e.offsetX;
+        const y = e.offsetY;
+        selectAsset(x, y);
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isDragging && isMoving) {
+            const x = e.offsetX;
+            const y = e.offsetY;
+            moveAsset(x, y);
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        isDragging = false;
+        isMoving = false;
+        selectedAsset = null;
+    });
+
+    confirmDeleteBtn.addEventListener('click', () => {
+        if (assetToDelete) {
+            deleteAsset(assetToDelete);
+            assetToDelete = null;
+        }
+        deleteModal.style.display = 'none';
+        hideDeleteButton();
+    });
+
+    cancelDeleteBtn.addEventListener('click', () => {
+        deleteModal.style.display = 'none';
+    });
+
+    function moveAsset(x, y) {
+        if (selectedAsset && isMoving) {
+            selectedAsset.x = x - selectedAsset.width / 2;
+            selectedAsset.y = y - selectedAsset.height / 2;
+            redrawCanvas();
+        }
+    }
+
+    function redrawCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        placedAssets.forEach(asset => {
+            if (asset.image.complete) {
+                ctx.drawImage(asset.image, asset.x, asset.y, asset.width, asset.height);
+            }
+        });
+    }
+
+    document.getElementById('generateScript').addEventListener('click', () => {
+        let script = '';
+        placedAssets.forEach(asset => {
+            script += `ID: ${asset.id}, X: ${asset.x}, Y: ${asset.y}, Breite: ${asset.width}, Höhe: ${asset.height}\n`;
+        });
+        document.getElementById('scriptOutput').textContent = script;
+    });
+</script>
+
+</body>
+</html>

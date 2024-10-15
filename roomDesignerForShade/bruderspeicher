@@ -1,0 +1,39 @@
+<div id="assetsContainer">
+    <h3>Assets</h3>
+    <div class="asset" draggable="true" data-id="1">
+        <img src="images/Desk.png" alt="Tisch">
+        <p>Tisch</p>
+    </div>
+    <div class="asset" draggable="true" data-id="2">
+        <img src="images/chair.png" alt="Stuhl">
+        <p>Stuhl</p>
+    </div>
+    <div class="asset" draggable="true" data-id="9">
+        <img src="images/aktenschrankoutline.png" alt="Schrank">
+        <p>Schrank</p>
+    </div>
+    <div class="asset" draggable="true" data-id="3">
+        <img src="images/plant.png" alt="Pflanze">
+        <p>Pflanze</p>
+    </div>
+    <div class="asset" draggable="true" data-id="4">
+        <img src="images/door.png" alt="Türe">
+        <p>Tür</p>
+    </div>
+    <div class="asset" draggable="true" data-id="5">
+        <img src="images/Fenster.png" alt="Fenster">
+        <p>Fenster</p>
+    </div>
+
+    <div class="input-group">
+        <label for="widthInput">Breite:</label>
+        <input type="number" id="widthInput" value="80">
+    </div>
+    <div class="input-group">
+        <label for="heightInput">Höhe:</label>
+        <input type="number" id="heightInput" value="80">
+    </div>
+
+    <button id="generateScript">Skript erstellen</button>
+    <div id="scriptOutput"></div>
+</div>
